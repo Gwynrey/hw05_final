@@ -1,0 +1,43 @@
+<!DOCTYPE html> <!-- Используется html 5 версии -->
+{% load static %}
+<html lang="ru"> <!-- Язык сайта - русский -->
+  <head>    
+    {% include 'includes/header.html' %}
+    <!-- Подключен файл со стандартными стилями бустрап -->
+    <link rel="stylesheet" href={% static 'css/bootstrap.min.css' %}>
+{% block title %}
+    <title>Записи сообщества</title>
+{% endblock %}
+  </head>
+  <body>
+    <header>
+      <!-- Использованы классы бустрапа для создания типовой навигации с логотипом -->
+      <!-- В дальнейшем тут будет создано полноценное меню -->    
+      <nav class="navbar navbar-light" style="background-color: lightskyblue">
+        <div class="container">
+          <!-- ссылка должна вести на главную страницу -->
+          <a class="navbar-brand" href="{% url 'posts:index' %}">
+            <img src="static/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            <!-- тег span используется для добавления нужных стилей отдельным участкам текста -->
+            <span style="color:red">Ya</span>tube
+          </a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      {% block content %}
+      <!-- класс py-5 создает отступы сверху и снизу блока -->
+      <div class="container py-5">
+        Информация на странице группы будет тут.
+      </div>
+      {% endblock %}
+    </main>
+    <!-- Использованы классы бустрапа: -->
+    <!-- border-top: создаёт тонкую линию сверху блока -->
+    <!-- text-center: выравнивает текстовые блоки внутри блока по центру -->
+    <!-- py-3: контент внутри размещается с отсупом сверху и снизу -->
+    <footer class="border-top text-center py-3">
+      {% include 'includes/footer.html' %}
+    </footer>
+  </body>
+</html>

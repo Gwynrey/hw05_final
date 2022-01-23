@@ -1,0 +1,80 @@
+<!DOCTYPE html> <!-- Используется html 5 версии -->
+{% load static %}
+<html lang="ru"> <!-- Язык сайта - русский -->
+  <head>    
+    {% include 'includes/header.html' %}
+    <!-- Подключен файл со стандартными стилями бустрап -->
+    <link rel="stylesheet" href={% static 'css/bootstrap.min.css' %}>
+{% block title %}
+    <title>Записи сообщества</title>
+{% endblock %}
+  </head>
+  <body>
+    <header>
+     <nav class="navbar navbar-light" style="background-color: lightskyblue">
+       <div class="container">
+         <a class="navbar-brand" href="{% url 'posts:index' %}">
+            <img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
+            <span style="color:red">Ya</span>tube
+         </a>
+          <ul class="nav nav-pills">
+            <li class="nav-item"> 
+              <a class="nav-link
+              {% if request.resolver_match.view_name  == 'about:author' %}
+                active
+              {% endif %}"
+              href="{% url 'about:author' %}">Об авторе</a>
+           </li>
+           <li class="nav-item">
+             <a class="nav-link
+             {% if request.resolver_match.view_name  == 'about:tech' %}
+                active
+              {% endif %}"
+             href="{% url 'about:tech' %}">Технологии</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item"> 
+              <a class="nav-link" href="{% url 'posts:post_create' %}">Новая запись</a>
+           </li>
+           <li class="nav-item"> 
+             <a class="nav-link link-light" {% if view_name  == 'users:password_change' %}active{% endif %}
+          href="{% url 'users:password_change_form' %}">Изменить пароль</a>
+           </li>
+           <li class="nav-item"> 
+             <a class="nav-link link-light" {% if view_name  == 'users:logout' %}active{% endif %} 
+          href="{% url 'users:logout' %}">Выйти</a>
+            </li>
+            <li>
+              Пользователь: {{ user.username }}
+           <li>
+           {% else %}
+            <li class="nav-item"> 
+             <a class="nav-link link-light" {% if view_name  == 'users:login' %}active{% endif %} 
+          href="{% url 'users:login' %}">Войти</a>
+           </li>
+           <li class="nav-item"> 
+              <a class="nav-link link-light" {% if view_name  == 'users:signup' %}active{% endif %}
+          href="{% url 'users:signup' %}">Регистрация</a>
+            </li>
+           {% endif %}
+         </ul>
+        </div>
+     </nav>      
+    </header> 
+    <main>
+      {% block content %}
+      <!-- класс py-5 создает отступы сверху и снизу блока -->
+      <div class="container py-5">
+        Информация на странице группы будет тут.
+      </div>
+      {% endblock %}
+    </main>
+    <!-- Использованы классы бустрапа: -->
+    <!-- border-top: создаёт тонкую линию сверху блока -->
+    <!-- text-center: выравнивает текстовые блоки внутри блока по центру -->
+    <!-- py-3: контент внутри размещается с отсупом сверху и снизу -->
+    <footer class="border-top text-center py-3">
+      {% include 'includes/footer.html' %}
+    </footer>
+  </body>
+</html>
