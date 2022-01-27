@@ -4,6 +4,9 @@ from http import HTTPStatus
 
 from posts.models import Post, Group
 
+# Зачем добавлять сюда новые модели, если мы тут их не используем
+# Проверки на новую ссылку и шаблон добавил
+
 User = get_user_model()
 
 
@@ -39,6 +42,7 @@ class PostsURLTests(TestCase):
             '/create/': HTTPStatus.FOUND,
             f'/posts/{self.post.id}/edit/': HTTPStatus.FOUND,
             '/unknownpage/': HTTPStatus.NOT_FOUND,
+            '/follow/': HTTPStatus.FOUND,
         }
         for adress, code in code_url_names.items():
             with self.subTest(adress=adress):
@@ -50,6 +54,7 @@ class PostsURLTests(TestCase):
             '/create/': HTTPStatus.OK,
             f'/posts/{self.post.id}/edit/': HTTPStatus.FOUND,
             '/unknownpage/': HTTPStatus.NOT_FOUND,
+            '/follow/': HTTPStatus.OK,
         }
         for adress, code in code_url_names.items():
             with self.subTest(adress=adress):
@@ -72,6 +77,7 @@ class PostsURLTests(TestCase):
             f'/profile/{self.user.username}/': 'posts/profile.html',
             f'/posts/{self.post.id}/': 'posts/post_detail.html',
             '/create/': 'posts/create_post.html',
+            '/follow/': 'posts/follow.html',
         }
         for adress, template in templates_url_names.items():
             with self.subTest(adress=adress):

@@ -39,14 +39,20 @@ def group_list(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     post_count = author.posts.all().count()
-    following = Follow.objects.filter(
-        user__username=request.user, author=author
-    )
-    context = {
-        'post_count': post_count,
-        'author': author,
-        'following': following,
-    }
+    if request.user.is_authenticated:
+        following = Follow.objects.filter(
+            user__username=request.user, author=author
+        )
+        context = {
+            'post_count': post_count,
+            'author': author,
+            'following': following,
+        }
+    else:
+        context = {
+            'post_count': post_count,
+            'author': author,
+        }
     context.update(get_page_context(author.posts.all(), request))
     return render(request, 'posts/profile.html', context)
 
@@ -114,11 +120,9 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    posts = Post.objects.filter(author__following__user=request.user)
-    paginator = Paginator(posts, settings.PAGINATOR_CONST)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {'page_obj': page_obj}
+    context = get_page_context(
+        Post.objects.filter(author__following__user=request.user), request
+    )
     return render(request, 'posts/follow.html', context)
 
 

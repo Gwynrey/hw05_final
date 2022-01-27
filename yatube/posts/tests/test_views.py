@@ -7,6 +7,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.cache import cache
 
 from posts.models import Post, Group, Follow
 
@@ -146,7 +147,7 @@ class PostsURLTests(TestCase):
             get_post.group.title, self.group.title
         )
 
-    def test_cach_work(self):
+    def test_cache_work(self):
         response = self.authorized_client.get(reverse('posts:index'))
         posts_amount = len(response.context['page_obj'])
         self.assertEqual(posts_amount, Post.objects.count())
@@ -163,6 +164,10 @@ class PostsURLTests(TestCase):
             'posts:profile', kwargs={'username': self.user.username})
         )
         self.assertEqual(posts_amount_one, Post.objects.count() - 1)
+        cache.clear()
+        response_again = self.authorized_client.get(reverse('posts:index'))
+        posts_amount_two = len(response_again.context['page_obj'])
+        self.assertEqual(posts_amount_two, Post.objects.count())
 
 
 class PaginatorViewsTest(TestCase):
@@ -267,7 +272,7 @@ class FollowTests(TestCase):
         self.authorized_client_3 = Client()
         self.authorized_client_3.force_login(self.user_3)
 
-    def test_subscribe_unsubscribe(self):
+    def test_subscribe(self):
         self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
@@ -276,6 +281,14 @@ class FollowTests(TestCase):
         )
         follower = Follow.objects.get(user=self.user)
         self.assertEqual(self.user_2, follower.author)
+
+    def test_unsubscribe(self):
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.user_2.username}
+            )
+        )
         followers_count = Follow.objects.count()
         self.authorized_client.get(
             reverse(
@@ -302,7 +315,14 @@ class FollowTests(TestCase):
         )
         response = self.authorized_client_2.get(reverse('posts:follow_index'))
         self.assertEqual(response.context['page_obj'][0], authors_post)
-        response_2 = self.authorized_client_3.get(
+
+    def test_unsubscriber_has_not_post(self):
+        authors_post = Post.objects.create(
+            text=self.post.text,
+            author=self.post.author,
+            group=self.group,
+        )
+        response = self.authorized_client_3.get(
             reverse('posts:follow_index')
         )
-        self.assertNotEqual(response_2.context['page_obj'], authors_post)
+        self.assertNotEqual(response.context['page_obj'], authors_post)

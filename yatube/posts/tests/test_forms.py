@@ -134,7 +134,7 @@ class PostCreateFormTests(TestCase):
         self.assertRedirects(response, reverse(
             'posts:post_detail', kwargs={'post_id': self.post.id})
         )
-        self.assertEqual(Post.objects.count(), comments_count + 1)
+        self.assertEqual(Comment.objects.count(), comments_count + 1)
 
     def test_guest_create_comment(self):
         comments_count = Comment.objects.count()
@@ -153,4 +153,4 @@ class PostCreateFormTests(TestCase):
                 reverse('posts:add_comment', args={self.post.pk})
             )
         )
-        self.assertEqual(Post.objects.count(), comments_count + 1)
+        self.assertEqual(Comment.objects.count(), comments_count)
