@@ -39,20 +39,19 @@ def group_list(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     post_count = author.posts.all().count()
+    context = {
+        'post_count': post_count,
+        'author': author,
+    }
     if request.user.is_authenticated:
         following = Follow.objects.filter(
             user__username=request.user, author=author
         )
-        context = {
-            'post_count': post_count,
-            'author': author,
-            'following': following,
-        }
-    else:
-        context = {
-            'post_count': post_count,
-            'author': author,
-        }
+        context.update(
+            {'post_count': post_count,
+             'author': author,
+             'following': following, }
+        )
     context.update(get_page_context(author.posts.all(), request))
     return render(request, 'posts/profile.html', context)
 

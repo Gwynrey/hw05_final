@@ -260,7 +260,7 @@ class FollowTests(TestCase):
 
         cls.post = Post.objects.create(
             text='test text',
-            author=cls.user,
+            author=cls.user_2,
             group=cls.group,
         )
 
@@ -273,21 +273,23 @@ class FollowTests(TestCase):
         self.authorized_client_3.force_login(self.user_3)
 
     def test_subscribe(self):
+        followers_count = Follow.objects.count()
         self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
-                kwargs={'username': self.user_2.username}
+                kwargs={'username': self.user_3.username}
             )
         )
         follower = Follow.objects.get(user=self.user)
-        self.assertEqual(self.user_2, follower.author)
+        self.assertEqual(self.user_3, follower.author)
+        self.assertEqual(
+            Follow.objects.count(), followers_count + 1
+        )
 
     def test_unsubscribe(self):
-        self.authorized_client.get(
-            reverse(
-                'posts:profile_follow',
-                kwargs={'username': self.user_2.username}
-            )
+        Follow.objects.create(
+            user=self.user,
+            author=self.user_2,
         )
         followers_count = Follow.objects.count()
         self.authorized_client.get(
@@ -302,18 +304,16 @@ class FollowTests(TestCase):
         )
 
     def test_subscriber_has_post(self):
-        self.authorized_client_2.get(
-            reverse(
-                'posts:profile_follow',
-                kwargs={'username': self.user.username}
-            )
+        Follow.objects.create(
+            user=self.user,
+            author=self.user_2,
         )
         authors_post = Post.objects.create(
             text=self.post.text,
             author=self.post.author,
             group=self.group,
         )
-        response = self.authorized_client_2.get(reverse('posts:follow_index'))
+        response = self.authorized_client.get(reverse('posts:follow_index'))
         self.assertEqual(response.context['page_obj'][0], authors_post)
 
     def test_unsubscriber_has_not_post(self):
